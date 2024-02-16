@@ -5,10 +5,20 @@
  */
 package actividad_2;
 
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.Properties;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 /**
@@ -20,8 +30,12 @@ public class Pantalla extends javax.swing.JFrame {
     /**
      * Creates new form Pantalla
      */
+    
+    
+    // vumrstopzczjlqvl JAKARTA CONTRASEÑA
     private final DefaultListModel<String> listModel;
-    private JList<String> fileList;
+    private final JList<String> fileList;
+    private Session mailSession;
 
     public Pantalla() {
         initComponents();
@@ -30,8 +44,38 @@ public class Pantalla extends javax.swing.JFrame {
         jBEnviar.setEnabled(false);
         listModel = new DefaultListModel<>();
         fileList = new JList<>(listModel);
+        jList1.setModel(listModel);
+        jBBorrarFichero.setEnabled(false);
         JScrollPane fileScrollPane = new JScrollPane(fileList);
 
+    }
+
+    public Session conectar(String username, String password, String host, String port, boolean starttls) {
+        final Properties prop = new Properties();
+        prop.put("mail.smtp.username", username);
+        prop.put("mail.smtp.password", password);
+        prop.put("mail.smtp.host", host);
+        prop.put("mail.smtp.port", port);
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.starttls.enable", String.valueOf(starttls));
+
+        mailSession = Session.getInstance(prop, new jakarta.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        return mailSession;
+    }
+
+    public void enviarMensaje(String de, String para, String asunto, String contenido) throws MessagingException {
+        Message mensaje = new MimeMessage(mailSession);
+        mensaje.setFrom(new InternetAddress(de));
+        mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(para));
+        mensaje.setSubject(asunto);
+        mensaje.setText(contenido);
+        Transport.send(mensaje);
     }
 
     /**
@@ -53,11 +97,10 @@ public class Pantalla extends javax.swing.JFrame {
         jLUsuario = new javax.swing.JLabel();
         jTFUsuario = new javax.swing.JTextField();
         jLClave = new javax.swing.JLabel();
-        jTFClave = new javax.swing.JTextField();
         jLRemitente = new javax.swing.JLabel();
         jTFRemitente = new javax.swing.JTextField();
         jLDestinatario = new javax.swing.JLabel();
-        jTFDestinatario = new javax.swing.JTextField();
+        jTFPara = new javax.swing.JTextField();
         jLCuerpo = new javax.swing.JLabel();
         jTBConectar = new javax.swing.JToggleButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -66,6 +109,10 @@ public class Pantalla extends javax.swing.JFrame {
         jBFichero = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
+        jBBorrarFichero = new javax.swing.JButton();
+        jPFClave = new javax.swing.JPasswordField();
+        jLabel1 = new javax.swing.JLabel();
+        jTFAsunto = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Actividad 2 - Juan Antonio Uceda Luque");
@@ -79,6 +126,12 @@ public class Pantalla extends javax.swing.JFrame {
         });
 
         jLPuerto.setText("Puerto:");
+
+        jTFPuerto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTFPuertoKeyTyped(evt);
+            }
+        });
 
         jRBSinTLS.setText("Sin TLS");
         jRBSinTLS.addActionListener(new java.awt.event.ActionListener() {
@@ -98,9 +151,9 @@ public class Pantalla extends javax.swing.JFrame {
 
         jLDestinatario.setText("Destinatario:");
 
-        jTFDestinatario.addActionListener(new java.awt.event.ActionListener() {
+        jTFPara.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTFDestinatarioActionPerformed(evt);
+                jTFParaActionPerformed(evt);
             }
         });
 
@@ -118,6 +171,11 @@ public class Pantalla extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextArea1);
 
         jBEnviar.setText("Enviar mensaje");
+        jBEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBEnviarActionPerformed(evt);
+            }
+        });
 
         jBFichero.setText("Adjuntar Fichero");
         jBFichero.addActionListener(new java.awt.event.ActionListener() {
@@ -126,7 +184,21 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
+        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jList1ValueChanged(evt);
+            }
+        });
         jScrollPane3.setViewportView(jList1);
+
+        jBBorrarFichero.setText("Borrar Fichero");
+        jBBorrarFichero.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBBorrarFicheroActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Asunto:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -166,25 +238,32 @@ public class Pantalla extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLDestinatario)
                                 .addGap(18, 18, 18)
-                                .addComponent(jTFDestinatario, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jTFPara, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLClave)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTFClave, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPFClave, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jTBConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(105, 105, 105)
+                                .addComponent(jLCuerpo))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jTFAsunto, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jBFichero)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jBBorrarFichero)))
                 .addGap(65, 65, 65))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(114, 114, 114)
-                .addComponent(jLCuerpo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jBFichero)
-                .addGap(126, 126, 126))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -202,26 +281,33 @@ public class Pantalla extends javax.swing.JFrame {
                     .addComponent(jLUsuario)
                     .addComponent(jTFUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLClave)
-                    .addComponent(jTFClave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTBConectar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jTBConectar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPFClave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLRemitente)
                     .addComponent(jTFRemitente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLDestinatario)
-                    .addComponent(jTFDestinatario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTFPara, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLCuerpo)
-                    .addComponent(jBFichero))
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jBFichero)
+                            .addComponent(jBBorrarFichero)
+                            .addComponent(jLabel1)
+                            .addComponent(jTFAsunto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(21, 21, 21))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLCuerpo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jBEnviar))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
@@ -232,9 +318,9 @@ public class Pantalla extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jRBSinTLSActionPerformed
 
-    private void jTFDestinatarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTFDestinatarioActionPerformed
+    private void jTFParaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTFParaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTFDestinatarioActionPerformed
+    }//GEN-LAST:event_jTFParaActionPerformed
 
     private void jTFSMTPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTFSMTPActionPerformed
         // TODO add your handling code here:
@@ -242,9 +328,32 @@ public class Pantalla extends javax.swing.JFrame {
 
     private void jTBConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTBConectarActionPerformed
         if (jTBConectar.isSelected()) {
-            jTBConectar.setText("Desconectar");
+            String username = jTFUsuario.getText();
+            String password = new String(jPFClave.getPassword());
+            String host = jTFSMTP.getText();
+            String port = jTFPuerto.getText();
+            boolean starttls = jRBConTLS.isSelected();
+
+            try {
+                Session session = conectar(username, password, host, port, starttls);
+                if (session != null) {
+                    JOptionPane.showMessageDialog(this, "Conexión realizada con éxito", "Conexión", JOptionPane.INFORMATION_MESSAGE);
+                    jTBConectar.setText("Desconectar");
+                    jBEnviar.setEnabled(true);
+                } else {
+                    throw new Exception("Falló la conexión");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error de conexión: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                jTBConectar.setSelected(false);
+                jTBConectar.setText("Conectar");
+                jBEnviar.setEnabled(false);
+            }
         } else {
             jTBConectar.setText("Conectar");
+            jBEnviar.setEnabled(false);
+            JOptionPane.showMessageDialog(this, "Desconexión realizada", "Desconexión", JOptionPane.INFORMATION_MESSAGE);
+
         }    }//GEN-LAST:event_jTBConectarActionPerformed
 
     private void jBFicheroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBFicheroActionPerformed
@@ -258,6 +367,40 @@ public class Pantalla extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jBFicheroActionPerformed
+
+    private void jBBorrarFicheroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBorrarFicheroActionPerformed
+        int selectedIndex = jList1.getSelectedIndex();
+        listModel.remove(selectedIndex);
+     }//GEN-LAST:event_jBBorrarFicheroActionPerformed
+
+    private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
+        if (!evt.getValueIsAdjusting()) {
+            jBBorrarFichero.setEnabled(!jList1.isSelectionEmpty());
+        }
+    }//GEN-LAST:event_jList1ValueChanged
+
+    private void jTFPuertoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTFPuertoKeyTyped
+        char c = evt.getKeyChar();
+        if (!((c >= '0') && (c <= '9') || (c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_DELETE))) {
+            evt.consume();
+        }
+        if (jTFPuerto.getText().length() >= 3) {
+            evt.consume();
+        }    }//GEN-LAST:event_jTFPuertoKeyTyped
+
+    private void jBEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBEnviarActionPerformed
+
+        String de = jTFUsuario.getText();
+        String para = jTFPara.getText();
+        String asunto = jTFAsunto.getText();
+        String contenido = jTextArea1.getText();
+        try {
+            enviarMensaje(de, para, asunto, contenido);
+            JOptionPane.showMessageDialog(this, "Mensaje enviado con éxito", "Envío de Correo", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MessagingException e) {
+            JOptionPane.showMessageDialog(this, "Error al enviar el mensaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jBEnviarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -296,6 +439,7 @@ public class Pantalla extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jBBorrarFichero;
     private javax.swing.JButton jBEnviar;
     private javax.swing.JButton jBFichero;
     private javax.swing.JLabel jLClave;
@@ -305,14 +449,16 @@ public class Pantalla extends javax.swing.JFrame {
     private javax.swing.JLabel jLRemitente;
     private javax.swing.JLabel jLSSMTP;
     private javax.swing.JLabel jLUsuario;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JList<String> jList1;
+    private javax.swing.JPasswordField jPFClave;
     private javax.swing.JRadioButton jRBConTLS;
     private javax.swing.JRadioButton jRBSinTLS;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JToggleButton jTBConectar;
-    private javax.swing.JTextField jTFClave;
-    private javax.swing.JTextField jTFDestinatario;
+    private javax.swing.JTextField jTFAsunto;
+    private javax.swing.JTextField jTFPara;
     private javax.swing.JTextField jTFPuerto;
     private javax.swing.JTextField jTFRemitente;
     private javax.swing.JTextField jTFSMTP;

@@ -68,12 +68,12 @@
                           <Group type="102" attributes="0">
                               <Component id="jLDestinatario" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-                              <Component id="jTFDestinatario" min="-2" pref="153" max="-2" attributes="0"/>
+                              <Component id="jTFPara" min="-2" pref="153" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLClave" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="jTFClave" min="-2" pref="103" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jPFClave" min="-2" pref="109" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="jTBConectar" min="-2" pref="147" max="-2" attributes="0"/>
                           </Group>
@@ -85,15 +85,25 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jScrollPane3" pref="0" max="32767" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="-2" pref="105" max="-2" attributes="0"/>
+                              <Component id="jLCuerpo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="jTFAsunto" min="-2" pref="305" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="jBFichero" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jBBorrarFichero" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="-2" pref="114" max="-2" attributes="0"/>
-              <Component id="jLCuerpo" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
-              <Component id="jBFichero" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="126" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -114,22 +124,32 @@
                   <Component id="jLUsuario" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jTFUsuario" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLClave" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jTFClave" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jTBConectar" alignment="3" max="32767" attributes="0"/>
+                  <Component id="jPFClave" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLRemitente" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jTFRemitente" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLDestinatario" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jTFDestinatario" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jTFPara" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLCuerpo" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jBFichero" alignment="1" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jBFichero" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jBBorrarFichero" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jTFAsunto" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="jLCuerpo" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="jScrollPane1" min="-2" pref="249" max="-2" attributes="0"/>
@@ -138,7 +158,7 @@
                   </Group>
                   <Component id="jScrollPane3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="31" max="32767" attributes="0"/>
+              <EmptySpace pref="28" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -160,6 +180,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTFPuerto">
+      <Events>
+        <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTFPuertoKeyTyped"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JRadioButton" name="jRBSinTLS">
       <Properties>
@@ -187,8 +210,6 @@
         <Property name="text" type="java.lang.String" value="Clave:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jTFClave">
-    </Component>
     <Component class="javax.swing.JLabel" name="jLRemitente">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remitente:"/>
@@ -201,9 +222,9 @@
         <Property name="text" type="java.lang.String" value="Destinatario:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jTFDestinatario">
+    <Component class="javax.swing.JTextField" name="jTFPara">
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTFDestinatarioActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTFParaActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLCuerpo">
@@ -238,6 +259,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Enviar mensaje"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBEnviarActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jBFichero">
       <Properties>
@@ -260,11 +284,31 @@
               <StringArray count="0"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="jList1ValueChanged"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="jBBorrarFichero">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Borrar Fichero"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBBorrarFicheroActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JPasswordField" name="jPFClave">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Asunto:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jTFAsunto">
+    </Component>
   </SubComponents>
 </Form>
