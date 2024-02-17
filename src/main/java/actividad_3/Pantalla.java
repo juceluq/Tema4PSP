@@ -2,12 +2,17 @@ package actividad_3;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Folder;
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
+import jakarta.mail.internet.MimeMultipart;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Properties;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 /**
@@ -16,16 +21,21 @@ import javax.swing.JOptionPane;
  */
 public class Pantalla extends javax.swing.JFrame {
 
-
-/**
+    /**
      * Creates new form Pantalla
      */
     // vumrstopzczjlqvl JAKARTA CONTRASEÑA
-        public Pantalla() {
+    private boolean isConnected = false;
+    private Store store;
+    private Folder inbox;
+
+    public Pantalla() {
         initComponents();
         buttonGroup1.add(jRBModoImplicito);
         buttonGroup1.add(jRBModoNoImplicito);
         jBRecuperar.setEnabled(false);
+        jTBConectar.setEnabled(false);
+
     }
 
     /**
@@ -60,6 +70,7 @@ public class Pantalla extends javax.swing.JFrame {
 
         jLSIMAP.setText("Servidor IMAP");
 
+        jTFIMAP.setText("localhost");
         jTFIMAP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTFIMAPActionPerformed(evt);
@@ -81,7 +92,6 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
-        jRBModoNoImplicito.setSelected(true);
         jRBModoNoImplicito.setText("Modo no Implicito");
         jRBModoNoImplicito.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -112,6 +122,11 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
+        jLAsunto.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jLAsuntoValueChanged(evt);
+            }
+        });
         jScrollPane3.setViewportView(jLAsunto);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -193,14 +208,20 @@ public class Pantalla extends javax.swing.JFrame {
     }//GEN-LAST:event_jRBModoImplicitoActionPerformed
 
     private void jTFIMAPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTFIMAPActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_jTFIMAPActionPerformed
 
     private void jTBConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTBConectarActionPerformed
-        if (jTBConectar.isSelected()) {
+        if (!isConnected) {
             conectar();
+            jTBConectar.setText("Desconectar");
+            jBRecuperar.setEnabled(true);
+            isConnected = true;
         } else {
             desconectar();
+            jTBConectar.setText("Conectar");
+            jBRecuperar.setEnabled(false);
+            isConnected = false;
 
         }    }//GEN-LAST:event_jTBConectarActionPerformed
 
@@ -217,7 +238,7 @@ public class Pantalla extends javax.swing.JFrame {
         if (implicito) {
             props.put("mail.imap.ssl.enable", "true");
         }
-        Session session = Session.getInstance(props, new Authenticator() {
+        Session mailSession = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(user, password);
@@ -225,28 +246,68 @@ public class Pantalla extends javax.swing.JFrame {
         });
 
         try {
-            Store store = session.getStore("imap");
-            store.connect();
-            Folder inbox = store.getFolder("INBOX");
+            store = mailSession.getStore("imap");
+            store.connect(host, user, password);
+            inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
+            isConnected = true;
+            JOptionPane.showMessageDialog(this, "Conectado.");
 
             jTBConectar.setText("Desconectar");
             jBRecuperar.setEnabled(true);
         } catch (MessagingException e) {
             JOptionPane.showMessageDialog(this, "Error al conectar: " + e.getMessage());
+            isConnected = false;
         }
     }
 
     private void desconectar() {
-        jTBConectar.setText("Conectar");
-        jBRecuperar.setEnabled(false);
-        jTAMensaje.setText("");
+        try {
+            if (inbox != null && inbox.isOpen()) {
+                inbox.close(false);
+            }
+            if (store != null && store.isConnected()) {
+                store.close();
+            }
+            isConnected = false;
+
+            jLAsunto.setModel(new DefaultListModel<>());
+            jTAMensaje.setText("");
+
+            jTBConectar.setText("Conectar");
+            jBRecuperar.setEnabled(false);
+        } catch (MessagingException e) {
+            JOptionPane.showMessageDialog(null, "Error al cerrar la conexión: " + e.getMessage());
+        }
     }
 
 
     private void jBRecuperarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBRecuperarActionPerformed
+        recuperarMensajes();
 
      }//GEN-LAST:event_jBRecuperarActionPerformed
+
+    private void recuperarMensajes() {
+        try {
+            if (!inbox.isOpen()) {
+                inbox.open(Folder.READ_ONLY);
+            }
+
+            int totalMessages = inbox.getMessageCount();
+            int startMessage = Math.max(1, totalMessages - 49);
+            Message[] messages = inbox.getMessages(startMessage, totalMessages);
+
+            DefaultListModel<String> modeloLista = new DefaultListModel<>();
+            for (int i = messages.length - 1; i >= 0; i--) {
+                Message message = messages[i];
+                modeloLista.addElement(message.getSubject() + " - " + message.getSentDate());
+            }
+            jLAsunto.setModel(modeloLista);
+        } catch (MessagingException e) {
+            JOptionPane.showMessageDialog(this, "Error al recuperar mensajes: " + e.getMessage());
+        }
+    }
+
 
     private void jTFPuertoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTFPuertoKeyTyped
         char c = evt.getKeyChar();
@@ -260,6 +321,53 @@ public class Pantalla extends javax.swing.JFrame {
     private void jRBModoNoImplicitoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBModoNoImplicitoActionPerformed
         jTBConectar.setEnabled(true);
     }//GEN-LAST:event_jRBModoNoImplicitoActionPerformed
+
+    private void jLAsuntoValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jLAsuntoValueChanged
+
+        if (!evt.getValueIsAdjusting() && jLAsunto.getSelectedIndex() != -1) {
+            try {
+                int totalMessages = inbox.getMessageCount();
+                int selectedMessageIndex = totalMessages - jLAsunto.getSelectedIndex();
+                Message selectedMessage = inbox.getMessage(selectedMessageIndex);
+                String content = obtenerTexto(selectedMessage);
+                jTAMensaje.setText(content);
+            } catch (MessagingException | IOException ex) {
+                JOptionPane.showMessageDialog(null, "Error al leer el mensaje seleccionado: " + ex.getMessage());
+            }
+        }
+    }//GEN-LAST:event_jLAsuntoValueChanged
+
+    private String obtenerTexto(Part p) throws MessagingException, IOException {
+        // Verifica si el contenido es texto plano
+        if (p.isMimeType("text/plain")) {
+            // Si es texto plano, simplemente devuelve el contenido como una cadena de texto
+            return (String) p.getContent();
+        } // Verifica si el contenido es HTML (text/html)
+        else if (p.isMimeType("text/html")) {
+            String html = (String) p.getContent();
+            // Llama al método convertirHtmlATexto para convertir el contenido HTML a texto plano
+            convertirHtmlATexto(html);
+        } // Verifica si el contenido es multipart, lo que significa que puede contener varias partes
+        else if (p.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) p.getContent();
+            StringBuilder result = new StringBuilder();
+            // Obtiene la cantidad de partes en el contenido multipart
+            int count = mimeMultipart.getCount();
+            for (int i = 0; i < count; i++) {
+                // Obtiene el texto de cada parte y lo concatena
+                String textoParte = obtenerTexto(mimeMultipart.getBodyPart(i));
+                result.append(textoParte);
+            }
+            // Devuelve el resultado de concatenar el texto de todas las partes
+            return result.toString();
+        }
+        // Si el contenido no es ninguno de los tipos anteriores, devuelve una cadena vacía
+        return "";
+    }
+
+    private String convertirHtmlATexto(String html) {
+        return html.replaceAll("<[^>]+>", ""); // Elimina las etiquetas HTML.
+    }
 
     /**
      * @param args the command line arguments

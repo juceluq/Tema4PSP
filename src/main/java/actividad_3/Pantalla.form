@@ -118,6 +118,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTFIMAP">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="localhost"/>
+      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTFIMAPActionPerformed"/>
       </Events>
@@ -142,7 +145,6 @@
     </Component>
     <Component class="javax.swing.JRadioButton" name="jRBModoNoImplicito">
       <Properties>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Modo no Implicito"/>
       </Properties>
       <Events>
@@ -208,6 +210,9 @@
               <StringArray count="0"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="jLAsuntoValueChanged"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
