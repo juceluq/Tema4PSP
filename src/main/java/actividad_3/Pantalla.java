@@ -230,7 +230,10 @@ public class Pantalla extends javax.swing.JFrame {
         props.put("mail.imap.port", port);
         if (implicito) {
             props.put("mail.imap.ssl.enable", "true");
+        } else {
+            props.put("mail.imap.starttls.enable", "true");
         }
+
         Session mailSession = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -244,13 +247,14 @@ public class Pantalla extends javax.swing.JFrame {
             inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
             isConnected = true;
-            JOptionPane.showMessageDialog(this, "Conectado.");
 
             jTBConectar.setText("Desconectar");
             jBRecuperar.setEnabled(true);
         } catch (MessagingException e) {
             JOptionPane.showMessageDialog(this, "Error al conectar: " + e.getMessage());
             isConnected = false;
+            jTBConectar.setText("Conectar");
+            jBRecuperar.setEnabled(false);
         }
     }
 
