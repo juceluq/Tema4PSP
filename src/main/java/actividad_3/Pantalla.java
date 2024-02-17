@@ -289,15 +289,18 @@ public class Pantalla extends javax.swing.JFrame {
             if (!inbox.isOpen()) {
                 inbox.open(Folder.READ_ONLY);
             }
-
             int totalMessages = inbox.getMessageCount();
+            // Calcula el índice del primer mensaje a recuperar para obtener los últimos 50 mensajes
             int startMessage = Math.max(1, totalMessages - 49);
+            // Recupera los mensajes en el rango calculado
             Message[] messages = inbox.getMessages(startMessage, totalMessages);
 
             DefaultListModel<String> modeloLista = new DefaultListModel<>();
+            // Recorre los mensajes recuperados del más reciente al más antiguo
             for (int i = messages.length - 1; i >= 0; i--) {
                 Message message = messages[i];
-                modeloLista.addElement(message.getSubject() + " - " + message.getSentDate());
+                // Añade el asunto y la fecha de envío de cada mensaje al modelo de lista
+                modeloLista.addElement(message.getSubject() + " || " + message.getSentDate());
             }
             jLAsunto.setModel(modeloLista);
         } catch (MessagingException e) {
@@ -335,7 +338,6 @@ public class Pantalla extends javax.swing.JFrame {
     }//GEN-LAST:event_jLAsuntoValueChanged
 
     private String obtenerTexto(Part p) throws MessagingException, IOException {
-        // Verifica si el contenido es texto plano
         if (p.isMimeType("text/plain")) {
             // Si es texto plano, simplemente devuelve el contenido como una cadena de texto
             return (String) p.getContent();
@@ -358,7 +360,6 @@ public class Pantalla extends javax.swing.JFrame {
             // Devuelve el resultado de concatenar el texto de todas las partes
             return result.toString();
         }
-        // Si el contenido no es ninguno de los tipos anteriores, devuelve una cadena vacía
         return "";
     }
 
