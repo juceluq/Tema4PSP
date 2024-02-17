@@ -5,15 +5,23 @@
  */
 package actividad_2;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.BodyPart;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
@@ -74,12 +82,28 @@ public class Pantalla extends javax.swing.JFrame {
         }
     }
 
-    public void enviarMensaje(String de, String para, String asunto, String contenido) throws MessagingException {
+    public void enviarMensaje(String de, String para, String asunto, String contenido, List<String> archivos) throws MessagingException {
         Message mensaje = new MimeMessage(mailSession);
         mensaje.setFrom(new InternetAddress(de));
         mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(para));
         mensaje.setSubject(asunto);
-        mensaje.setText(contenido);
+
+        BodyPart cuerpoMensaje = new MimeBodyPart();
+        cuerpoMensaje.setText(contenido);
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(cuerpoMensaje);
+
+        for (String archivo : archivos) {
+            MimeBodyPart archivoAdjunto = new MimeBodyPart();
+            FileDataSource fuente = new FileDataSource(new File(archivo));
+            archivoAdjunto.setDataHandler(new DataHandler(fuente));
+            archivoAdjunto.setFileName(fuente.getName());
+            multipart.addBodyPart(archivoAdjunto);
+        }
+
+        mensaje.setContent(multipart);
+
         Transport.send(mensaje);
     }
 
@@ -414,8 +438,14 @@ public class Pantalla extends javax.swing.JFrame {
         String para = jTFPara.getText();
         String asunto = jTFAsunto.getText();
         String contenido = jTextArea1.getText();
+
+        List<String> archivos = new ArrayList<>();
+        for (int i = 0; i < listModel.getSize(); i++) {
+            archivos.add(listModel.getElementAt(i));
+        }
+
         try {
-            enviarMensaje(de, para, asunto, contenido);
+            enviarMensaje(de, para, asunto, contenido, archivos);
             JOptionPane.showMessageDialog(this, "Mensaje enviado con éxito", "Envío de Correo", JOptionPane.INFORMATION_MESSAGE);
         } catch (MessagingException e) {
             JOptionPane.showMessageDialog(this, "Error al enviar el mensaje: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
