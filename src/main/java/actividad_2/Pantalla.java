@@ -30,8 +30,6 @@ public class Pantalla extends javax.swing.JFrame {
     /**
      * Creates new form Pantalla
      */
-    
-    
     // vumrstopzczjlqvl JAKARTA CONTRASEÑA
     private final DefaultListModel<String> listModel;
     private final JList<String> fileList;
@@ -50,8 +48,8 @@ public class Pantalla extends javax.swing.JFrame {
 
     }
 
-    public Session conectar(String username, String password, String host, String port, boolean starttls) {
-        final Properties prop = new Properties();
+    public Session conectar(String username, String password, String host, String port, boolean starttls) throws MessagingException {
+        Properties prop = new Properties();
         prop.put("mail.smtp.username", username);
         prop.put("mail.smtp.password", password);
         prop.put("mail.smtp.host", host);
@@ -66,7 +64,14 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
-        return mailSession;
+        try {
+            Transport transport = mailSession.getTransport("smtp");
+            transport.connect();
+            return mailSession;
+
+        } catch (MessagingException e) {
+            throw new MessagingException("No se pudo conectar al servidor SMTP. Verifique sus configuraciones.", e);
+        }
     }
 
     public void enviarMensaje(String de, String para, String asunto, String contenido) throws MessagingException {
@@ -245,7 +250,7 @@ public class Pantalla extends javax.swing.JFrame {
                                 .addComponent(jPFClave, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jTBConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -340,6 +345,14 @@ public class Pantalla extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Conexión realizada con éxito", "Conexión", JOptionPane.INFORMATION_MESSAGE);
                     jTBConectar.setText("Desconectar");
                     jBEnviar.setEnabled(true);
+
+                    jTFUsuario.setEnabled(false);
+                    jPFClave.setEnabled(false);
+                    jTFSMTP.setEnabled(false);
+                    jTFPuerto.setEnabled(false);
+                    jRBConTLS.setEnabled(false);
+                    jRBSinTLS.setEnabled(false);
+
                 } else {
                     throw new Exception("Falló la conexión");
                 }
@@ -350,6 +363,13 @@ public class Pantalla extends javax.swing.JFrame {
                 jBEnviar.setEnabled(false);
             }
         } else {
+            jTFUsuario.setEnabled(true);
+            jPFClave.setEnabled(true);
+            jTFSMTP.setEnabled(true);
+            jTFPuerto.setEnabled(true);
+            jRBConTLS.setEnabled(true);
+            jRBSinTLS.setEnabled(true);
+
             jTBConectar.setText("Conectar");
             jBEnviar.setEnabled(false);
             JOptionPane.showMessageDialog(this, "Desconexión realizada", "Desconexión", JOptionPane.INFORMATION_MESSAGE);
