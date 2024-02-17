@@ -214,15 +214,8 @@ public class Pantalla extends javax.swing.JFrame {
     private void jTBConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTBConectarActionPerformed
         if (!isConnected) {
             conectar();
-            jTBConectar.setText("Desconectar");
-            jBRecuperar.setEnabled(true);
-            isConnected = true;
         } else {
             desconectar();
-            jTBConectar.setText("Conectar");
-            jBRecuperar.setEnabled(false);
-            isConnected = false;
-
         }    }//GEN-LAST:event_jTBConectarActionPerformed
 
     private void conectar() {
