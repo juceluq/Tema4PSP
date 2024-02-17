@@ -31,7 +31,7 @@ import javax.swing.JScrollPane;
 
 /**
  *
- * @author Usuario
+ * @author Juan Antonio Uceda Luque
  */
 public class Pantalla extends javax.swing.JFrame {
 
