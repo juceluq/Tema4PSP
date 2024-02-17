@@ -324,17 +324,23 @@ public class Pantalla extends javax.swing.JFrame {
 
     private void jLAsuntoValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jLAsuntoValueChanged
 
-        if (!evt.getValueIsAdjusting() && jLAsunto.getSelectedIndex() != -1) {
+        // Verifica que hay un elemento seleccionado
+        if (jLAsunto.getSelectedIndex() != -1) {
             try {
                 int totalMessages = inbox.getMessageCount();
+                // Calcula el índice del mensaje seleccionado. La lista se muestra en orden inverso (el más reciente primero),
+                // por lo que es necesario ajustar el índice.
                 int selectedMessageIndex = totalMessages - jLAsunto.getSelectedIndex();
+                // Recupera el mensaje seleccionado usando su índice ajustado
                 Message selectedMessage = inbox.getMessage(selectedMessageIndex);
+                // Obtiene el contenido del mensaje seleccionado como texto
                 String content = obtenerTexto(selectedMessage);
                 jTAMensaje.setText(content);
             } catch (MessagingException | IOException ex) {
                 JOptionPane.showMessageDialog(null, "Error al leer el mensaje seleccionado: " + ex.getMessage());
             }
         }
+
     }//GEN-LAST:event_jLAsuntoValueChanged
 
     private String obtenerTexto(Part p) throws MessagingException, IOException {
